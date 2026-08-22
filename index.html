@@ -33,7 +33,14 @@
     #catan-counter .history-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     #catan-counter .danger{font-size:11px;padding:0 10px;min-height:34px;background:#fff1f2;color:#b91c1c;border:1px solid #fecdd3;font-weight:700}
     #catan-counter .danger:hover{background:#ffe4e6;border-color:#fda4af}
-    #catan-counter .history-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 11px;background:#f3f4f6;border-radius:10px;font-size:13px}
+    #catan-counter .history-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 11px;background:#f3f4f6;border-radius:10px;font-size:13px;overflow-x:auto}
+    #catan-counter .historical-table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px}
+    #catan-counter .historical-table th,#catan-counter .historical-table td{padding:8px 6px;border-bottom:1px solid var(--viz-border,#e5e7eb);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #catan-counter .historical-table th:first-child,#catan-counter .historical-table td:first-child{text-align:left}
+    #catan-counter .historical-table th{font-weight:750;color:var(--viz-muted,#6b7280);font-size:11px}
+    #catan-counter .historical-table .total-row{font-weight:750;background:#f3f4f6}
+    #catan-counter .historical-summary{display:grid;gap:10px;margin-top:12px}
+    #catan-counter .historical-note{font-size:12px;color:var(--viz-muted,#6b7280);line-height:1.45}
     #catan-counter .history-item strong{font-size:13px}.history-item span{color:#6b7280}
     #catan-counter .wins{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
     #catan-counter .win-box{background:#f3f4f6;border-radius:10px;padding:10px;text-align:center}.win-box strong{display:block;font-size:18px}.win-box span{font-size:11px;color:#6b7280}
@@ -49,12 +56,10 @@
     #catan-counter .hint{font-size:12px;color:var(--viz-muted,#6b7280);margin-top:10px}
     @media(max-width:520px){#catan-counter{padding:14px}.numbers{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}button.num{min-height:78px!important}.die{font-size:25px!important}.count{font-size:12px!important}.top{align-items:flex-start}.total{text-align:left}.actions button{flex:1 1 100%}.percent-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
   </style>
-
-    <div class="top">
+  <div class="top">
     <div><h2>Registro de tiradas</h2><div class="sub">Clickeá el número que acaba de salir.</div></div>
     <div class="total"><strong id="total">0</strong><span>tiradas</span></div>
   </div>
-
   <div class="panel">
     <div class="numbers" id="numbers"></div>
     <div class="section-head"><div class="section-title">Ganador de la partida</div><div class="hint" style="margin:0">Opcional hasta terminar</div></div>
@@ -73,108 +78,57 @@
       <div class="section-title">Histórico de victorias</div>
       <div class="wins" id="wins"></div>
       <div class="history-list" id="historyList"></div>
-      <div class="history-tools"><button class="action" id="exportHistory" type="button">↓ Exportar datos</button><button class="action" id="exportHistoryImage" type="button">↓ Exportar imagen</button><button class="action danger" id="clearHistory" type="button">Borrar histórico</button></div>
-      <div class="hint">Histórico compartido entre dispositivos.</div>
+      <div class="history-tools"><button class="action" id="refreshHistory" type="button">↻ Actualizar</button><button class="action" id="exportHistoryCsv" type="button">↓ Histórico CSV</button><button class="action" id="exportHistory" type="button">↓ Histórico JSON</button><button class="action" id="exportHistoryImage" type="button">↓ Exportar imagen</button><button class="action danger" id="clearHistory" type="button">Borrar histórico</button></div>
+      <div class="hint">Se sincroniza con la nube al abrir y se actualiza automáticamente mientras la app está abierta.</div>
+      <div class="section-title">Análisis histórico</div>
+      <div class="stats-card" id="historicalAnalysis"><div class="result-grid"><div class="result-box"><strong id="historicalGames">0</strong><span>partidas</span></div><div class="result-box"><strong id="historicalRolls">0</strong><span>tiradas</span></div><div class="result-box"><strong id="historicalMost">—</strong><span>más salido</span></div></div><div class="percent-grid" id="historicalPercentGrid"></div><div class="history-list" id="historicalRows" style="margin-top:10px"></div></div>
     </div>
   </div>
-
   <script>
     (function(){
       const root=document.getElementById('catan-counter');
       if(!root||root.dataset.ready)return; root.dataset.ready='1';
-      // Shared cloud sync is configured for the Catan group.
       const CLOUD={url:'https://ctbnyingfedrceasxskq.supabase.co',key:'sb_publishable_Rro_LKeWS5Bkomp8J5QCIQ_PWopdpuo',table:'catan_partidas'};
       const nums=Array.from({length:11},(_,i)=>i+2);
       const counts=Object.fromEntries(nums.map(n=>[n,0]));
       const history=[];
-      const numbers=root.querySelector('#numbers');
-      const chart=root.querySelector('#chart');
-      const total=root.querySelector('#total');
-      const status=root.querySelector('#status');
-      const undo=root.querySelector('#undo');
-      const reset=root.querySelector('#reset');
-      const rolls=root.querySelector('#rolls');
-      const most=root.querySelector('#most');
-      const least=root.querySelector('#least');
-      const percentGrid=root.querySelector('#percentGrid');
-      const exportCsv=root.querySelector('#exportCsv');
-      const exportJson=root.querySelector('#exportJson');
-      const players=root.querySelector('#players');
-      const historyList=root.querySelector('#historyList');
-      const wins=root.querySelector('#wins');
-      const playerNames=['Flor','Chicho','Anouk','Fede','Changa','Gonza','Iña'];
-      const storageKey='catan-dados-historico-v1';
-      let games=[];
-      let winner='';
-      const exportHistory=root.querySelector('#exportHistory');
-      const exportHistoryImage=root.querySelector('#exportHistoryImage');
-      const clearHistory=root.querySelector('#clearHistory');
-      const cloudReady=Boolean(CLOUD.url&&CLOUD.key);
+      const numbers=root.querySelector('#numbers'),chart=root.querySelector('#chart'),total=root.querySelector('#total'),status=root.querySelector('#status'),undo=root.querySelector('#undo'),reset=root.querySelector('#reset'),rolls=root.querySelector('#rolls'),most=root.querySelector('#most'),least=root.querySelector('#least'),percentGrid=root.querySelector('#percentGrid'),exportCsv=root.querySelector('#exportCsv'),exportJson=root.querySelector('#exportJson'),players=root.querySelector('#players'),historyList=root.querySelector('#historyList'),wins=root.querySelector('#wins');
+      const playerNames=['Flor','Chicho','Anouk','Fede','Changa','Gonza','Iña'],storageKey='catan-dados-historico-v1';
+      let games=[],winner='';
+      const exportHistory=root.querySelector('#exportHistory'),exportHistoryCsv=root.querySelector('#exportHistoryCsv'),exportHistoryImage=root.querySelector('#exportHistoryImage'),refreshHistory=root.querySelector('#refreshHistory'),clearHistory=root.querySelector('#clearHistory'),cloudReady=Boolean(CLOUD.url&&CLOUD.key);
+      const historicalGames=root.querySelector('#historicalGames'),historicalRolls=root.querySelector('#historicalRolls'),historicalMost=root.querySelector('#historicalMost'),historicalPercentGrid=root.querySelector('#historicalPercentGrid'),historicalRows=root.querySelector('#historicalRows');
       try{const saved=localStorage.getItem(storageKey);games=saved?JSON.parse(saved):[];if(!Array.isArray(games))games=[];}catch(e){games=[];}
-
-      playerNames.forEach(name=>{
-        const b=document.createElement('button'); b.type='button'; b.className='player'; b.textContent=name;
-        b.addEventListener('click',()=>{winner=name; renderWinner(); status.textContent='Ganador seleccionado: '+name+'.'});
-        players.appendChild(b);
-      });
-
+      playerNames.forEach(name=>{const b=document.createElement('button');b.type='button';b.className='player';b.textContent=name;b.addEventListener('click',()=>{winner=name;renderWinner();status.textContent='Ganador seleccionado: '+name+'.'});players.appendChild(b);});
       function renderWinner(){players.querySelectorAll('.player').forEach(b=>b.classList.toggle('selected',b.textContent===winner));}
-
-      nums.forEach(n=>{
-        const b=document.createElement('button'); b.type='button'; b.className='num'; b.setAttribute('aria-label','Registrar un '+n);
-        b.innerHTML='<span class="die">'+n+'</span><span class="count" id="c'+n+'">0 veces</span>';
-        b.addEventListener('click',()=>add(n)); numbers.appendChild(b);
-      });
-
-      nums.forEach(n=>{
-        const row=document.createElement('div'); row.className='row'; row.innerHTML='<div class="label">'+n+'</div><div class="track"><div class="bar" id="b'+n+'"></div></div><div class="value" id="v'+n+'">0</div>'; chart.appendChild(row);
-      });
-
+      nums.forEach(n=>{const b=document.createElement('button');b.type='button';b.className='num';b.setAttribute('aria-label','Registrar un '+n);b.innerHTML='<span class="die">'+n+'</span><span class="count" id="c'+n+'">0 veces</span>';b.addEventListener('click',()=>add(n));numbers.appendChild(b);});
+      nums.forEach(n=>{const row=document.createElement('div');row.className='row';row.innerHTML='<div class="label">'+n+'</div><div class="track"><div class="bar" id="b'+n+'"></div></div><div class="value" id="v'+n+'">0</div>';chart.appendChild(row);});
       function add(n){counts[n]++;history.push(n);render();status.textContent='Última tirada: '+n+'. Total: '+history.length+'.'}
-      function render(){
-        total.textContent=history.length;
-        const max=Math.max(1,...nums.map(n=>counts[n]));
-        nums.forEach(n=>{
-          root.querySelector('#c'+n).textContent=counts[n]+' '+(counts[n]===1?'vez':'veces');
-          root.querySelector('#v'+n).textContent=counts[n];
-          root.querySelector('#b'+n).style.width=(counts[n]/max*100)+'%';
-        });
-        rolls.textContent=history.length;
-        const highest=Math.max(...nums.map(n=>counts[n]));
-        const lowest=Math.min(...nums.map(n=>counts[n]));
-        most.textContent=history.length?nums.filter(n=>counts[n]===highest).join(' · '):'—';
-        least.textContent=history.length?nums.filter(n=>counts[n]===lowest).join(' · '):'—';
-        percentGrid.innerHTML=nums.map(n=>{const pct=history.length?(counts[n]/history.length*100):0;return '<div class="percent-row"><strong>'+n+'</strong><span class="percent-value">'+pct.toFixed(1)+'%</span></div>';}).join('');
-        undo.disabled=history.length===0;
-        undo.style.opacity=history.length===0?'0.5':'1';
-      }
-      function downloadFile(name,type,text){try{const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.style.display='none';a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1500);return true}catch(e){status.textContent='No se pudo preparar el archivo para descargar.';return false}}
-      function exportData(){
-        const total=history.length;
-        const lines=['Partida,Catan','Ganador,'+(winner||''),'Total de tiradas,'+total,'Promedio,'+(total?(history.reduce((a,b)=>a+b,0)/total).toFixed(4):''),'','Numero,Veces,Porcentaje,Probabilidad_teorica,Esperado'];
-        const probs={2:1/36,3:2/36,4:3/36,5:4/36,6:5/36,7:6/36,8:5/36,9:4/36,10:3/36,11:2/36,12:1/36};
-        nums.forEach(n=>lines.push([n,counts[n],total?(counts[n]/total*100).toFixed(2):'0.00',(probs[n]*100).toFixed(2),total?(total*probs[n]).toFixed(2):'0.00'].join(',')));
-        return lines.join('\n');
-      }
+      function render(){total.textContent=history.length;const max=Math.max(1,...nums.map(n=>counts[n]));nums.forEach(n=>{root.querySelector('#c'+n).textContent=counts[n]+' '+(counts[n]===1?'vez':'veces');root.querySelector('#v'+n).textContent=counts[n];root.querySelector('#b'+n).style.width=(counts[n]/max*100)+'%';});rolls.textContent=history.length;const highest=Math.max(...nums.map(n=>counts[n])),lowest=Math.min(...nums.map(n=>counts[n]));most.textContent=history.length?nums.filter(n=>counts[n]===highest).join(' · '):'—';least.textContent=history.length?nums.filter(n=>counts[n]===lowest).join(' · '):'—';percentGrid.innerHTML=nums.map(n=>{const pct=history.length?(counts[n]/history.length*100):0;return '<div class="percent-row"><strong>'+n+'</strong><span class="percent-value">'+pct.toFixed(1)+'%</span></div>';}).join('');undo.disabled=history.length===0;undo.style.opacity=history.length===0?'0.5':'1';}
+      function downloadFile(name,type,text){try{const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.style.display='none';a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1500);return true}catch(e){status.textContent='No se pudo preparar el archivo para descargar.';return false}}
+      function exportData(){const total=history.length,lines=['Partida,Catan','Ganador,'+(winner||''),'Total de tiradas,'+total,'Promedio,'+(total?(history.reduce((a,b)=>a+b,0)/total).toFixed(4):''),'','Numero,Veces,Porcentaje,Probabilidad_teorica,Esperado'],probs={2:1/36,3:2/36,4:3/36,5:4/36,6:5/36,7:6/36,8:5/36,9:4/36,10:3/36,11:2/36,12:1/36};nums.forEach(n=>lines.push([n,counts[n],total?(counts[n]/total*100).toFixed(2):'0.00',(probs[n]*100).toFixed(2),total?(total*probs[n]).toFixed(2):'0.00'].join(',')));return lines.join('\n');}
       exportCsv.addEventListener('click',()=>{if(!history.length){status.textContent='No hay tiradas para exportar.';return}downloadFile('catan-partida-'+history.length+'-tiradas.csv','text/csv;charset=utf-8','\uFEFF'+exportData());status.textContent='CSV exportado.';});
       exportJson.addEventListener('click',()=>{if(!history.length){status.textContent='No hay tiradas para exportar.';return}const data={juego:'Catan',ganador:winner,total_tiradas:history.length,orden_tiradas:history,frecuencias:counts,porcentajes:Object.fromEntries(nums.map(n=>[n,Number((counts[n]/history.length*100).toFixed(2))]))};downloadFile('catan-partida-'+history.length+'-tiradas.json','application/json;charset=utf-8',JSON.stringify(data,null,2));status.textContent='JSON exportado.';});
       function persistGames(){try{localStorage.setItem(storageKey,JSON.stringify(games));return true}catch(e){return false;}}
-      async function cloudFetch(path,options={}){const method=(options.method||'GET').toUpperCase();const url=CLOUD.url+'/rest/v1/'+path;const headers={'Accept':'application/json','apikey':CLOUD.key,'Authorization':'Bearer '+CLOUD.key};let body=undefined;if(options.body){body=typeof options.body==='string'?options.body:JSON.stringify(options.body);headers['Content-Type']='application/json';headers['Prefer']='return=minimal';}const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);let r;try{r=await fetch(url,{method,mode:'cors',cache:'no-store',headers,body,signal:controller.signal});}catch(e){if(e&&e.name==='AbortError')throw new Error('TIMEOUT: Supabase no respondió en 10 segundos');throw new Error('NETWORK/CORS: '+(e&&e.message?e.message:'Failed to fetch'));}finally{clearTimeout(timer)}if(!r.ok){let detail='';try{detail=await r.text()}catch(e){}throw new Error('HTTP '+r.status+(detail?' · '+detail.slice(0,500):''));}if(r.status===204)return[];const responseText=await r.text();return responseText?JSON.parse(responseText):[];}
-      async function loadCloud(){if(!cloudReady)return false;try{const rows=await cloudFetch(CLOUD.table+'?select=total,ganador,frecuencias,tiradas,fecha');games=rows.map(r=>({ganador:r.ganador||'',total:r.total,frecuencias:r.frecuencias||{},tiradas:r.tiradas||[],fecha:r.fecha}));persistGames();renderHistory();status.textContent='Histórico sincronizado.';return true}catch(e){console.error('Supabase load error:',e);status.textContent='Error de nube: '+e.message;return false;}}
+      async function cloudFetch(path,options={}){const method=(options.method||'GET').toUpperCase(),url=CLOUD.url+'/rest/v1/'+path,headers={'Accept':'application/json','apikey':CLOUD.key,'Authorization':'Bearer '+CLOUD.key};let body=undefined;if(options.body){body=typeof options.body==='string'?options.body:JSON.stringify(options.body);headers['Content-Type']='application/json';headers['Prefer']='return=minimal';}const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);let r;try{r=await fetch(url,{method,mode:'cors',cache:'no-store',headers,body,signal:controller.signal});}catch(e){if(e&&e.name==='AbortError')throw new Error('TIMEOUT: Supabase no respondió en 10 segundos');throw new Error('NETWORK/CORS: '+(e&&e.message?e.message:'Failed to fetch'));}finally{clearTimeout(timer)}if(!r.ok){let detail='';try{detail=await r.text()}catch(e){}throw new Error('HTTP '+r.status+(detail?' · '+detail.slice(0,500):''));}if(r.status===204)return[];const responseText=await r.text();return responseText?JSON.parse(responseText):[];}
+      async function loadCloud(silent=false){if(!cloudReady)return false;try{const rows=await cloudFetch(CLOUD.table+'?select=total,ganador,frecuencias,tiradas,fecha');games=rows.map(r=>({ganador:r.ganador||'',total:r.total,frecuencias:r.frecuencias||{},tiradas:r.tiradas||[],fecha:r.fecha}));persistGames();renderHistory();if(!silent)status.textContent='Histórico sincronizado.';return true}catch(e){console.error('Supabase load error:',e);if(!silent)status.textContent='Error de nube: '+e.message;return false;}}
       async function saveCloud(game){if(!cloudReady){status.textContent='Supabase no está configurado.';return false}status.textContent='Conectando con Supabase…';try{await cloudFetch(CLOUD.table+'?select=total&limit=1');status.textContent='Conexión OK. Guardando partida…';const payload={total:game.total,ganador:game.ganador,frecuencias:game.frecuencias,tiradas:game.tiradas,fecha:game.fecha};await cloudFetch(CLOUD.table,{method:'POST',body:JSON.stringify(payload)});return true}catch(e){console.error('Supabase save error:',e);status.textContent='Error de nube: '+e.message;return false;}}
       async function deleteCloud(){if(!cloudReady)return false;try{const rows=await cloudFetch(CLOUD.table+'?select=total');if(!rows.length)return true;for(const row of rows){await cloudFetch(CLOUD.table+'?total=eq.'+encodeURIComponent(row.total),{method:'DELETE'});}return true}catch(e){console.error('Supabase delete error:',e);return false;}}
-      async function saveGame(){if(!history.length){status.textContent='No hay tiradas para guardar.';return}if(!winner){status.textContent='Seleccioná el ganador antes de guardar la partida.';return}const game={ganador:winner,total:history.length,frecuencias:{...counts},tiradas:[...history],fecha:new Date().toISOString()};status.textContent='Guardando partida…';const synced=await saveCloud(game);if(!synced){return}games.push(game);persistGames();renderHistory();status.textContent='Partida guardada y sincronizada.';}
-      function renderHistory(){const winsCount=Object.fromEntries(playerNames.map(n=>[n,0]));games.forEach(g=>{if(g.ganador&&winsCount[g.ganador]!==undefined)winsCount[g.ganador]++;});wins.innerHTML=playerNames.map(n=>'<div class="win-box"><strong>'+winsCount[n]+'</strong><span>'+n+'</span></div>').join('');historyList.innerHTML=games.length?games.slice().reverse().map((g,i)=>'<div class="history-item"><strong>Partida '+(games.length-i)+'</strong><span>'+(g.ganador||'sin ganador')+' · '+g.total+' tiradas</span></div>').join(''):'<div class="hint">Todavía no hay partidas guardadas.</div>';}
+      async function saveGame(){if(!history.length){status.textContent='No hay tiradas para guardar.';return}if(!winner){status.textContent='Seleccioná el ganador antes de guardar la partida.';return}const game={ganador:winner,total:history.length,frecuencias:{...counts},tiradas:[...history],fecha:new Date().toISOString()};status.textContent='Guardando partida…';const synced=await saveCloud(game);if(!synced)return;games.push(game);persistGames();renderHistory();nums.forEach(n=>counts[n]=0);history.length=0;winner='';renderWinner();render();status.textContent='Partida guardada. Listo para la siguiente.';}
+      function renderHistory(){const winsCount=Object.fromEntries(playerNames.map(n=>[n,0]));games.forEach(g=>{if(g.ganador&&winsCount[g.ganador]!==undefined)winsCount[g.ganador]++;});wins.innerHTML=playerNames.map(n=>'<div class="win-box"><strong>'+winsCount[n]+'</strong><span>'+n+'</span></div>').join('');historyList.innerHTML=games.length?games.slice().reverse().map((g,i)=>'<div class="history-item"><strong>Partida '+(games.length-i)+'</strong><span>'+(g.ganador||'sin ganador')+' · '+g.total+' tiradas</span></div>').join(''):'<div class="hint">Todavía no hay partidas guardadas.</div>';renderHistoricalAnalysis();}
+      function renderHistoricalAnalysis(){const totals=Object.fromEntries(nums.map(n=>[n,0]));let allRolls=0;games.forEach(g=>{allRolls+=Number(g.total)||0;const f=g.frecuencias||{};nums.forEach(n=>{totals[n]+=Number(f[n]||0);});});historicalGames.textContent=games.length;historicalRolls.textContent=allRolls;const max=Math.max(0,...nums.map(n=>totals[n]));historicalMost.textContent=games.length&&max?nums.filter(n=>totals[n]===max).join(' · '):'—';historicalPercentGrid.innerHTML=nums.map(n=>{const pct=allRolls?(totals[n]/allRolls*100):0;return '<div class="percent-row"><strong>'+n+'</strong><span class="percent-value">'+totals[n]+' · '+pct.toFixed(1)+'%</span></div>';}).join('');if(!games.length){historicalRows.innerHTML='<div class="hint">Guardá una partida para comenzar el análisis acumulado.</div>';return;}const header='<table class="historical-table"><thead><tr><th>Partida</th><th>Ganador</th><th>Tiradas</th>'+nums.map(n=>'<th>'+n+'</th>').join('')+'</tr></thead><tbody>',rows=games.map((g,i)=>{const f=g.frecuencias||{};return '<tr><td>Partida '+(i+1)+'</td><td>'+escapeHtml(g.ganador||'Sin ganador')+'</td><td>'+Number(g.total||0)+'</td>'+nums.map(n=>'<td>'+Number(f[n]||0)+'</td>').join('')+'</tr>';}).join(''),totalRow='<tr class="total-row"><td colspan="2">TOTAL · '+games.length+' partidas</td><td>'+allRolls+'</td>'+nums.map(n=>'<td>'+totals[n]+'</td>').join('')+'</tr>';historicalRows.innerHTML=header+rows+totalRow+'</tbody></table>';}
       function escapeHtml(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-      exportHistory.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const data={juego:'Catan',partidas:games};downloadFile('catan-historico.json','application/json;charset=utf-8',JSON.stringify(data,null,2));status.textContent='Histórico exportado.';});
-      exportHistoryImage.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const winsCount=Object.fromEntries(playerNames.map(n=>[n,0]));games.forEach(g=>{if(g.ganador&&winsCount[g.ganador]!==undefined)winsCount[g.ganador]++;});const rows=playerNames.map((n,i)=>'<text x="70" y="'+(150+i*48)+'" font-size="26" font-family="Arial" fill="#111827">'+escapeHtml(n)+'</text><text x="680" y="'+(150+i*48)+'" text-anchor="end" font-size="28" font-family="Arial" font-weight="700" fill="#111827">'+winsCount[n]+'</text>');const svg='<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520"><rect width="800" height="520" fill="#ffffff"/><text x="70" y="65" font-size="32" font-family="Arial" font-weight="700" fill="#111827">Catan · Histórico de victorias</text><text x="70" y="105" font-size="18" font-family="Arial" fill="#6b7280">Partidas registradas: '+games.length+'</text>'+rows.join('')+'<line x1="70" y1="120" x2="730" y2="120" stroke="#e5e7eb"/></svg>';try{const svgBlob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});const url=URL.createObjectURL(svgBlob);const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=800;canvas.height=520;const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,800,520);ctx.drawImage(img,0,0);canvas.toBlob(blob=>{if(!blob){status.textContent='No se pudo generar la imagen.';URL.revokeObjectURL(url);return}const pngUrl=URL.createObjectURL(blob);const a=document.createElement('a');a.style.display='none';a.href=pngUrl;a.download='catan-historico.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(pngUrl),1500);URL.revokeObjectURL(url)},'image/png');};img.onerror=()=>{URL.revokeObjectURL(url);status.textContent='No se pudo generar la imagen.'};img.src=url;status.textContent='Imagen del histórico exportada.';}catch(e){status.textContent='No se pudo preparar la imagen.'}});
+      exportHistoryCsv.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const header=['Partida','Fecha','Ganador','Tiradas',...nums.map(String)],lines=[header.join(',')];games.forEach((g,i)=>{const f=g.frecuencias||{};lines.push([i+1,g.fecha||'',g.ganador||'',g.total||0,...nums.map(n=>Number(f[n]||0))].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','));});const totals=Object.fromEntries(nums.map(n=>[n,0]));let totalRolls=0;games.forEach(g=>{totalRolls+=Number(g.total)||0;const f=g.frecuencias||{};nums.forEach(n=>totals[n]+=Number(f[n]||0));});lines.push(['TOTAL','','',totalRolls,...nums.map(n=>totals[n])].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','));downloadFile('catan-historico.csv','text/csv;charset=utf-8','\uFEFF'+lines.join('\n'));status.textContent='Histórico CSV exportado.';});
+      exportHistory.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}downloadFile('catan-historico.json','application/json;charset=utf-8',JSON.stringify({juego:'Catan',partidas:games},null,2));status.textContent='Histórico JSON exportado.';});
+      refreshHistory.addEventListener('click',async()=>{refreshHistory.disabled=true;status.textContent='Actualizando histórico…';await loadCloud();refreshHistory.disabled=false;});
+      exportHistoryImage.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const winsCount=Object.fromEntries(playerNames.map(n=>[n,0]));games.forEach(g=>{if(g.ganador&&winsCount[g.ganador]!==undefined)winsCount[g.ganador]++;});const rows=playerNames.map((n,i)=>'<text x="70" y="'+(150+i*48)+'" font-size="26" font-family="Arial" fill="#111827">'+escapeHtml(n)+'</text><text x="680" y="'+(150+i*48)+'" text-anchor="end" font-size="28" font-family="Arial" font-weight="700" fill="#111827">'+winsCount[n]+'</text>');const svg='<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520"><rect width="800" height="520" fill="#ffffff"/><text x="70" y="65" font-size="32" font-family="Arial" font-weight="700" fill="#111827">Catan · Histórico de victorias</text><text x="70" y="105" font-size="18" font-family="Arial" fill="#6b7280">Partidas registradas: '+games.length+'</text>'+rows.join('')+'<line x1="70" y1="120" x2="730" y2="120" stroke="#e5e7eb"/></svg>';try{const svgBlob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(svgBlob),img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=800;canvas.height=520;const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,800,520);ctx.drawImage(img,0,0);canvas.toBlob(blob=>{if(!blob){status.textContent='No se pudo generar la imagen.';URL.revokeObjectURL(url);return}const pngUrl=URL.createObjectURL(blob),a=document.createElement('a');a.style.display='none';a.href=pngUrl;a.download='catan-historico.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(pngUrl),1500);URL.revokeObjectURL(url)},'image/png');};img.onerror=()=>{URL.revokeObjectURL(url);status.textContent='No se pudo generar la imagen.'};img.src=url;status.textContent='Imagen del histórico exportada.';}catch(e){status.textContent='No se pudo preparar la imagen.'}});
       clearHistory.addEventListener('click',async()=>{const first=window.confirm('¿Estás seguro de que querés borrar todo el histórico?');if(!first)return;const second=window.confirm('Última confirmación: se eliminarán todas las partidas guardadas. ¿Sí, borrar histórico?');if(!second)return;const cloudDeleted=await deleteCloud();if(!cloudDeleted){status.textContent='No se pudo borrar el histórico compartido. No se borró nada.';return}games=[];try{localStorage.removeItem(storageKey)}catch(e){}renderHistory();status.textContent='Histórico borrado correctamente para todos.';});
       const saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.className='action';saveBtn.textContent='Guardar partida';saveBtn.addEventListener('click',saveGame);root.querySelector('.actions').insertBefore(saveBtn,reset);
-      undo.addEventListener('click',()=>{if(!history.length)return; const n=history.pop(); counts[n]--; render(); status.textContent='Se deshizo la última tirada ('+n+'). Total: '+history.length+'.';});
+      undo.addEventListener('click',()=>{if(!history.length)return;const n=history.pop();counts[n]--;render();status.textContent='Se deshizo la última tirada ('+n+'). Total: '+history.length+'.';});
       reset.addEventListener('click',()=>{nums.forEach(n=>counts[n]=0);history.length=0;winner='';renderWinner();render();status.textContent='Partida reiniciada.';});
       nums.forEach(n=>counts[n]=0);history.length=0;winner='';
-      renderWinner();render();renderHistory();loadCloud();
+      renderWinner();render();renderHistory();loadCloud();setInterval(()=>{if(document.visibilityState==='visible')loadCloud(true)},20000);
     })();
   </script>
 </div>
+
 </body></html>
