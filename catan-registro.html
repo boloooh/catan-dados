@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catan · Registro de tiradas</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{background:#111827;color:#f9fafb;padding:16px}
+#catan-counter{max-width:900px;margin:0 auto;padding:20px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+h1{font-size:24px;line-height:1.1;font-weight:750;margin:0;color:#fff}
+.sub{font-size:13px;color:#9ca3af;margin-top:5px}
+.total{text-align:right}.total strong{display:block;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}.total span{font-size:12px;color:#9ca3af}
+.panel{background:#f7f7f8;border:1px solid #e5e7eb;border-radius:16px;padding:16px;color:#111827}
+.numbers{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
+button.num{min-height:72px;border:1px solid #d1d5db;border-radius:12px;background:#fff;color:#111827;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .08s,border-color .15s}
+button.num:hover{border-color:#2563eb}button.num:active{transform:scale(.96)}
+.die{font-size:22px;font-weight:750;line-height:1}.count{font-size:13px;color:#6b7280;font-variant-numeric:tabular-nums}
+.section-title{font-size:13px;font-weight:700;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280}
+.chart{display:grid;gap:8px}.row{display:grid;grid-template-columns:30px 1fr 36px;align-items:center;gap:9px;font-size:13px}
+.label{font-weight:700;text-align:center}.track{height:18px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;border-radius:999px;background:#2563eb;transition:width .18s ease}.value{text-align:right;color:#6b7280}
+.actions{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+button.action{min-height:44px;padding:0 15px;border-radius:10px;border:1px solid #d1d5db;background:#fff;color:#111827;cursor:pointer;font-weight:650}
+button.action.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.hint{font-size:12px;color:#6b7280;margin-top:10px}
+@media(max-width:520px){
+body{padding:8px}#catan-counter{padding:10px}.numbers{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+button.num{min-height:78px}.die{font-size:25px}.count{font-size:12px}.top{align-items:flex-start}.total{text-align:left}.actions button{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div id="catan-counter">
+<div class="top">
+<div><h1>Registro de tiradas</h1><div class="sub">Clickeá el número que acaba de salir.</div></div>
+<div class="total"><strong id="total">0</strong><span>tiradas</span></div>
+</div>
+<div class="panel">
+<div class="numbers" id="numbers"></div>
+<div class="section-title">Distribución</div>
+<div class="chart" id="chart"></div>
+<div class="actions">
+<button class="action" id="undo" type="button">↶ Deshacer última</button>
+<button class="action primary" id="reset" type="button">Reiniciar partida</button>
+</div>
+<div class="hint" id="status" aria-live="polite">Todavía no hay tiradas registradas.</div>
+</div>
+</div>
+<script>
+(function(){
+const nums=Array.from({length:11},(_,i)=>i+2),counts=Object.fromEntries(nums.map(n=>[n,0])),history=[];
+const numbers=document.getElementById('numbers'),chart=document.getElementById('chart'),total=document.getElementById('total'),status=document.getElementById('status'),undo=document.getElementById('undo'),reset=document.getElementById('reset');
+nums.forEach(n=>{const b=document.createElement('button');b.type='button';b.className='num';b.setAttribute('aria-label','Registrar un '+n);b.innerHTML='<span class="die">'+n+'</span><span class="count" id="c'+n+'">0 veces</span>';b.addEventListener('click',()=>{counts[n]++;history.push(n);render();status.textContent='Última tirada: '+n+'. Total: '+history.length+'.'});numbers.appendChild(b)});
+nums.forEach(n=>{const row=document.createElement('div');row.className='row';row.innerHTML='<div class="label">'+n+'</div><div class="track"><div class="bar" id="b'+n+'"></div></div><div class="value" id="v'+n+'">0</div>';chart.appendChild(row)});
+function render(){total.textContent=history.length;const max=Math.max(1,...nums.map(n=>counts[n]));nums.forEach(n=>{document.getElementById('c'+n).textContent=counts[n]+' '+(counts[n]===1?'vez':'veces');document.getElementById('v'+n).textContent=counts[n];document.getElementById('b'+n).style.width=(counts[n]/max*100)+'%'});undo.disabled=!history.length;undo.style.opacity=history.length?'1':'.5'}
+undo.addEventListener('click',()=>{if(!history.length)return;const n=history.pop();counts[n]--;render();status.textContent='Se deshizo la última tirada ('+n+'). Total: '+history.length+'.'});
+reset.addEventListener('click',()=>{nums.forEach(n=>counts[n]=0);history.length=0;render();status.textContent='Partida reiniciada.'});
+render();
+})();
+</script>
+</body>
+</html>
