@@ -80,7 +80,7 @@
       const root=document.getElementById('catan-counter');
       if(!root||root.dataset.ready)return; root.dataset.ready='1';
       // Shared cloud sync is configured for the Catan group.
-      const CLOUD={url:'https://ctbnyingfedrceasxskqu.supabase.co',key:'sb_publishable_Rro_LKeWS5Bkomp8J5QCIQ_PWopdpuo',table:'catan_partidas'};
+      const CLOUD={url:'https://ctbnyingfedrceasxskq.supabase.co',key:'sb_publishable_Rro_LKeWS5Bkomp8J5QCIQ_PWopdpuo',table:'catan_partidas'};
       const nums=Array.from({length:11},(_,i)=>i+2);
       const counts=Object.fromEntries(nums.map(n=>[n,0]));
       const history=[];
