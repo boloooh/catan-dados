@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Catan · Registro de tiradas · v76</title>
+<title>Catan · Registro de tiradas · v66</title>
 </head>
 <body>
 <div id="catan-counter" class="max-w-4xl mx-auto p-5 sm:p-7">
@@ -23,8 +23,8 @@
     #catan-counter button.num:hover{border-color:var(--viz-accent,#2563eb)}
     #catan-counter button.num:active{transform:scale(.96)}
     #catan-counter button.num:focus-visible,#catan-counter button.action:focus-visible{outline:3px solid color-mix(in srgb,var(--viz-accent,#2563eb) 30%,transparent);outline-offset:2px}
-    #catan-counter .die{font-size:22px;font-weight:750;line-height:1;color:#111827!important;display:block}
-    #catan-counter .count{font-size:13px;color:#6b7280!important;font-variant-numeric:tabular-nums;display:block}
+    #catan-counter .die{font-size:22px;font-weight:750;line-height:1}
+    #catan-counter .count{font-size:13px;color:var(--viz-muted,#6b7280);font-variant-numeric:tabular-nums}
     #catan-counter .section-title{font-size:12px;font-weight:750;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.06em;color:var(--viz-muted,#6b7280)}
     #catan-counter .stats{margin-top:22px;display:grid;gap:12px}
     #catan-counter .stats-card{background:var(--viz-card,#fff);border:1px solid var(--viz-border,#e5e7eb);border-radius:14px;padding:14px}
@@ -33,20 +33,6 @@
     #catan-counter .players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
     #catan-counter button.player{min-height:48px;border:1px solid var(--viz-border,#d1d5db);border-radius:10px;background:var(--viz-card,#fff);color:#111827;cursor:pointer;font-weight:650}
     #catan-counter button.player.selected{background:var(--viz-accent,#2563eb);border-color:var(--viz-accent,#2563eb);color:#fff}
-    #catan-counter .participants{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-    #catan-counter button.participant{min-height:44px;border:1px solid var(--viz-border,#d1d5db);border-radius:10px;background:var(--viz-card,#fff);color:#111827;cursor:pointer;font-weight:650}
-    #catan-counter button.participant.selected{background:var(--viz-accent,#2563eb);border-color:var(--viz-accent,#2563eb);color:#fff}
-    #catan-counter .turn-card{margin-top:12px;padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a}
-    #catan-counter .turn-main{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    #catan-counter .last-roll{font-size:14px;font-weight:750}
-    #catan-counter .last-roll strong{font-size:22px;color:#2563eb;font-variant-numeric:tabular-nums}
-    #catan-counter .last-roll-time{font-size:12px;color:#64748b;margin-top:3px;font-variant-numeric:tabular-nums}
-    #catan-counter .turn-next{font-size:12px;color:#475569}
-    #catan-counter .turn-select{min-height:38px;padding:0 10px;border:1px solid #bfdbfe;border-radius:9px;background:#fff;color:#1e3a8a;font-weight:650}
-    #catan-counter .sequence{display:grid;gap:6px;margin-top:10px}
-    #catan-counter .sequence-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:#f3f4f6;border-radius:9px;font-size:12px}
-    #catan-counter .sequence-item strong{color:#2563eb;font-size:15px}
-    #catan-counter .sequence-item span{color:#6b7280}
     #catan-counter .history{margin-top:22px}
     #catan-counter .history-list{display:grid;gap:7px}
     #catan-counter .history-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -67,6 +53,13 @@
     #catan-counter .historical-total-table .highlight{font-weight:750}
     #catan-counter .historical-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
     #catan-counter .historical-empty{padding:12px;background:#f3f4f6;border-radius:10px;font-size:12px;color:var(--viz-muted,#6b7280)}
+    #catan-counter .historical-ranking{display:grid;gap:7px;margin-top:10px}
+    #catan-counter .historical-rank-item{display:grid;grid-template-columns:30px 42px 1fr auto;align-items:center;gap:9px;padding:9px 10px;background:#f3f4f6;border-radius:10px;font-size:13px;font-variant-numeric:tabular-nums}
+    #catan-counter .historical-rank-position{font-weight:750;color:var(--viz-muted,#6b7280);text-align:center}
+    #catan-counter .historical-rank-number{font-size:17px;font-weight:800;text-align:center}
+    #catan-counter .historical-rank-track{height:8px;background:color-mix(in srgb,var(--viz-border,#e5e7eb) 55%,transparent);border-radius:999px;overflow:hidden}
+    #catan-counter .historical-rank-bar{height:100%;width:0;border-radius:999px;background:var(--viz-accent,#2563eb)}
+    #catan-counter .historical-rank-value{min-width:72px;text-align:right;font-weight:700}
     #catan-counter .historical-percent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
     #catan-counter .historical-percent-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f3f4f6;border-radius:10px;font-size:13px;font-variant-numeric:tabular-nums}
     #catan-counter .historical-percent-item .number{font-size:16px;font-weight:800}
@@ -80,7 +73,7 @@
     #catan-counter .history-item strong{font-size:13px}.history-item span{color:#6b7280}
     #catan-counter .wins{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
     #catan-counter .win-box{background:#f3f4f6;border-radius:10px;padding:10px;text-align:center}.win-box strong{display:block;font-size:18px}.win-box span{font-size:11px;color:#6b7280}
-    #catan-counter .chart{display:none}
+    #catan-counter .chart{display:grid;gap:8px}
     #catan-counter .row{display:grid;grid-template-columns:30px 1fr 36px;align-items:center;gap:9px;font-size:13px}
     #catan-counter .label{font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
     #catan-counter .track{height:18px;background:color-mix(in srgb,var(--viz-border,#e5e7eb) 45%,transparent);border-radius:999px;overflow:hidden}
@@ -100,23 +93,10 @@
 
   <div class="panel">
     <div class="numbers" id="numbers"></div>
-    <div class="section-head"><div class="section-title">Orden de participantes</div><div class="hint" style="margin:0">Elegilos en el orden de tirada</div></div>
-    <div class="participants" id="participants"></div>
-    <div class="turn-card" id="turnCard">
-      <div class="turn-main">
-        <div>
-          <div class="last-roll">Último número guardado: <strong id="lastRollNumber">—</strong></div>
-          <div class="last-roll-time" id="lastRollMeta">Todavía no hay una tirada registrada.</div>
-        </div>
-        <div>
-          <div class="turn-next">Turno actual</div>
-          <select class="turn-select" id="currentParticipant" aria-label="Participante que realiza la próxima tirada"></select>
-        </div>
-      </div>
-      <div class="sequence" id="sequence"></div>
-    </div>
     <div class="section-head"><div class="section-title">Ganador de la partida</div><div class="hint" style="margin:0">Opcional hasta terminar</div></div>
     <div class="players" id="players"></div>
+    <div class="section-head"><div class="section-title">Distribución</div><div class="hint" style="margin:0">2–12</div></div>
+    <div class="chart" id="chart"></div>
     <div class="stats"><div class="stats-card"><div class="result-grid"><div class="result-box"><strong id="rolls">0</strong><span>tiradas</span></div><div class="result-box"><strong id="most">—</strong><span>más salido</span></div><div class="result-box"><strong id="least">—</strong><span>menos salido</span></div></div><div class="section-title">Frecuencia</div><div class="percent-grid" id="percentGrid"></div></div></div>
     <div class="actions">
       <button class="action" id="undo" type="button">↶ Deshacer última</button>
@@ -140,6 +120,8 @@
         </div>
         <div class="section-title">Porcentaje acumulado · ranking</div>
         <div class="historical-percent-grid" id="historicalPercentGrid"></div>
+        <div class="section-title">Frecuencia histórica · de mayor a menor</div>
+        <div class="historical-ranking" id="historicalRanking"></div>
         <details class="historical-details">
           <summary>Ver detalle de todas las partidas</summary>
           <div class="historical-details-body" id="historicalRows"></div>
@@ -171,11 +153,6 @@
       const exportCsv=root.querySelector('#exportCsv');
       const exportJson=root.querySelector('#exportJson');
       const players=root.querySelector('#players');
-      const participants=root.querySelector('#participants');
-      const currentParticipant=root.querySelector('#currentParticipant');
-      const lastRollNumber=root.querySelector('#lastRollNumber');
-      const lastRollMeta=root.querySelector('#lastRollMeta');
-      const sequence=root.querySelector('#sequence');
       const historyList=root.querySelector('#historyList');
       const wins=root.querySelector('#wins');
       const playerNames=['Flor','Chicho','Anouk','Fede','Changa','Gonza','Iña'];
@@ -188,14 +165,12 @@
       const refreshHistory=root.querySelector('#refreshHistory');
       const clearHistory=root.querySelector('#clearHistory');
       const cloudReady=Boolean(CLOUD.url&&CLOUD.key);
-      let selectedParticipants=[];
-      let currentParticipantIndex=0;
-      let rollLog=[];
       const historicalGames=root.querySelector('#historicalGames');
       const historicalRolls=root.querySelector('#historicalRolls');
       const historicalMost=root.querySelector('#historicalMost');
       const historicalPercentGrid=root.querySelector('#historicalPercentGrid');
       const historicalRows=root.querySelector('#historicalRows');
+      const historicalRanking=root.querySelector('#historicalRanking');
       try{const saved=localStorage.getItem(storageKey);games=saved?JSON.parse(saved):[];if(!Array.isArray(games))games=[];}catch(e){games=[];}
 
       playerNames.forEach(name=>{
@@ -203,34 +178,6 @@
         b.addEventListener('click',()=>{winner=name; renderWinner(); status.textContent='Ganador seleccionado: '+name+'.'});
         players.appendChild(b);
       });
-
-      playerNames.forEach(name=>{
-        const b=document.createElement('button'); b.type='button'; b.className='participant'; b.dataset.name=name; b.textContent=name;
-        b.addEventListener('click',()=>toggleParticipant(name));
-        participants.appendChild(b);
-      });
-
-      function toggleParticipant(name){
-        if(selectedParticipants.includes(name)){
-          const removedIndex=selectedParticipants.indexOf(name);
-          selectedParticipants=selectedParticipants.filter(p=>p!==name);
-          if(removedIndex<currentParticipantIndex)currentParticipantIndex--;
-          currentParticipantIndex=Math.max(0,Math.min(currentParticipantIndex,selectedParticipants.length-1));
-        }else{
-          selectedParticipants.push(name);
-        }
-        renderParticipants();
-        status.textContent=selectedParticipants.length?'Orden de tirada: '+selectedParticipants.join(' → ')+'.':'Sin participantes seleccionados.';
-      }
-
-      function renderParticipants(){
-        participants.querySelectorAll('.participant').forEach(b=>{const name=b.dataset.name;b.classList.toggle('selected',selectedParticipants.includes(name));b.textContent=selectedParticipants.includes(name)?(selectedParticipants.indexOf(name)+1)+'. '+name:name;});
-        currentParticipant.innerHTML=selectedParticipants.length?'<option value="'+currentParticipantIndex+'">'+escapeHtml(selectedParticipants[currentParticipantIndex])+'</option>':'<option value="">Sin participante</option>';
-        currentParticipant.disabled=!selectedParticipants.length;
-        if(selectedParticipants.length){currentParticipantIndex=Math.min(currentParticipantIndex,selectedParticipants.length-1);currentParticipant.value=String(currentParticipantIndex);}
-      }
-
-      currentParticipant.addEventListener('change',()=>{currentParticipantIndex=Number(currentParticipant.value)||0;});
 
       function renderWinner(){players.querySelectorAll('.player').forEach(b=>b.classList.toggle('selected',b.textContent===winner));}
 
@@ -244,27 +191,7 @@
         const row=document.createElement('div'); row.className='row'; row.innerHTML='<div class="label">'+n+'</div><div class="track"><div class="bar" id="b'+n+'"></div></div><div class="value" id="v'+n+'">0</div>'; chart.appendChild(row);
       });
 
-      function add(n){
-        counts[n]++;history.push(n);
-        const now=new Date();
-        const player=selectedParticipants.length?selectedParticipants[currentParticipantIndex]:'';
-        rollLog.push({numero:n,jugador:player,hora:now.toISOString()});
-        render();
-        renderLastRoll();
-        if(selectedParticipants.length)currentParticipantIndex=(currentParticipantIndex+1)%selectedParticipants.length;
-        renderParticipants();
-        status.textContent='Última tirada: '+n+'. Total: '+history.length+'.';
-      }
-
-      function renderLastRoll(){
-        if(!rollLog.length){lastRollNumber.textContent='—';lastRollMeta.textContent='Todavía no hay una tirada registrada.';sequence.innerHTML='';return;}
-        const last=rollLog[rollLog.length-1];
-        const d=new Date(last.hora);
-        const time=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-        lastRollNumber.textContent=last.numero;
-        lastRollMeta.textContent=(last.jugador?last.jugador+' · ':'')+time;
-        sequence.innerHTML=rollLog.slice(-8).reverse().map((r,i)=>{const rd=new Date(r.hora);const rt=rd.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});return '<div class="sequence-item"><strong>'+r.numero+'</strong><span>'+(r.jugador||'Sin participante')+' · '+rt+'</span></div>';}).join('');
-      }
+      function add(n){counts[n]++;history.push(n);render();status.textContent='Última tirada: '+n+'. Total: '+history.length+'.'}
       function render(){
         total.textContent=history.length;
         const max=Math.max(1,...nums.map(n=>counts[n]));
@@ -297,9 +224,9 @@
       async function loadCloud(silent=false){if(!cloudReady)return false;try{const rows=await cloudFetch(CLOUD.table+'?select=total,ganador,frecuencias,tiradas,fecha');games=rows.map(r=>({ganador:r.ganador||'',total:r.total,frecuencias:r.frecuencias||{},tiradas:r.tiradas||[],fecha:r.fecha}));persistGames();renderHistory();if(!silent)status.textContent='Histórico sincronizado.';return true}catch(e){console.error('Supabase load error:',e);if(!silent)status.textContent='Error de nube: '+e.message;return false;}}
       async function saveCloud(game){if(!cloudReady){status.textContent='Supabase no está configurado.';return false}status.textContent='Conectando con Supabase…';try{await cloudFetch(CLOUD.table+'?select=total&limit=1');status.textContent='Conexión OK. Guardando partida…';const payload={total:game.total,ganador:game.ganador,frecuencias:game.frecuencias,tiradas:game.tiradas,fecha:game.fecha};await cloudFetch(CLOUD.table,{method:'POST',body:JSON.stringify(payload)});return true}catch(e){console.error('Supabase save error:',e);status.textContent='Error de nube: '+e.message;return false;}}
       async function deleteCloud(){if(!cloudReady)return false;try{const rows=await cloudFetch(CLOUD.table+'?select=total');if(!rows.length)return true;for(const row of rows){await cloudFetch(CLOUD.table+'?total=eq.'+encodeURIComponent(row.total),{method:'DELETE'});}return true}catch(e){console.error('Supabase delete error:',e);return false;}}
-      async function saveGame(){if(!history.length){status.textContent='No hay tiradas para guardar.';return}if(!winner){status.textContent='Seleccioná el ganador antes de guardar la partida.';return}const meta={participantes:[...selectedParticipants],secuencia:[...rollLog]};const game={ganador:winner,total:history.length,frecuencias:{...counts,__meta:meta},tiradas:[...history],fecha:new Date().toISOString()};status.textContent='Guardando partida…';const synced=await saveCloud(game);if(!synced){return}games.push(game);persistGames();renderHistory();nums.forEach(n=>counts[n]=0);history.length=0;rollLog=[];selectedParticipants=[];currentParticipantIndex=0;winner='';renderParticipants();renderLastRoll();renderWinner();render();status.textContent='Partida guardada. Listo para la siguiente.';}
+      async function saveGame(){if(!history.length){status.textContent='No hay tiradas para guardar.';return}if(!winner){status.textContent='Seleccioná el ganador antes de guardar la partida.';return}const game={ganador:winner,total:history.length,frecuencias:{...counts},tiradas:[...history],fecha:new Date().toISOString()};status.textContent='Guardando partida…';const synced=await saveCloud(game);if(!synced){return}games.push(game);persistGames();renderHistory();nums.forEach(n=>counts[n]=0);history.length=0;winner='';renderWinner();render();status.textContent='Partida guardada. Listo para la siguiente.';}
       function renderHistory(){const winsCount=Object.fromEntries(playerNames.map(n=>[n,0]));games.forEach(g=>{if(g.ganador&&winsCount[g.ganador]!==undefined)winsCount[g.ganador]++;});wins.innerHTML=playerNames.map(n=>'<div class="win-box"><strong>'+winsCount[n]+'</strong><span>'+n+'</span></div>').join('');historyList.innerHTML=games.length?games.slice().reverse().map((g,i)=>'<div class="history-item"><strong>Partida '+(games.length-i)+'</strong><span>'+(g.ganador||'sin ganador')+' · '+g.total+' tiradas</span></div>').join(''):'<div class="hint">Todavía no hay partidas guardadas.</div>';renderHistoricalAnalysis();}
-      function renderHistoricalAnalysis(){if(!historicalGames||!historicalRolls||!historicalMost||!historicalPercentGrid||!historicalRows)return;const totals=Object.fromEntries(nums.map(n=>[n,0]));let allRolls=0;games.forEach(g=>{const f=g.frecuencias||{};let gameRolls=Number(g.total)||0;if(!gameRolls)gameRolls=nums.reduce((s,n)=>s+Number(f[n]||0),0);allRolls+=gameRolls;nums.forEach(n=>{totals[n]+=Number(f[n]||0);});});const totalFromFrequencies=nums.reduce((s,n)=>s+totals[n],0);if(totalFromFrequencies>allRolls)allRolls=totalFromFrequencies;historicalGames.textContent=games.length;historicalRolls.textContent=allRolls;const max=Math.max(0,...nums.map(n=>totals[n]));historicalMost.textContent=games.length&&max?nums.filter(n=>totals[n]===max).join(' · '):'—';const ranked=nums.map(n=>({n,count:totals[n],pct:allRolls?(totals[n]/allRolls*100):0})).sort((a,b)=>b.pct-a.pct||b.count-a.count||a.n-b.n);historicalPercentGrid.innerHTML=ranked.map(item=>'<div class="historical-percent-item"><strong class="number">'+item.n+'</strong><span class="pct">'+item.pct.toFixed(1)+'%</span></div>').join('');if(!games.length){historicalRows.innerHTML='<div class="historical-empty">Guardá una partida para comenzar el archivo histórico.</div>';return;}const header='<div class="historical-scroll"><table class="historical-table"><thead><tr><th>Partida</th><th>Fecha</th><th>Ganador</th><th>Participantes</th><th>Tiradas</th>'+nums.map(n=>'<th>'+n+'</th>').join('')+'</tr></thead><tbody>';const rows=games.map((g,i)=>{const f=g.frecuencias||{};const meta=f.__meta||{};const participantsText=Array.isArray(meta.participantes)?meta.participantes.join(', '):'—';return '<tr><td>Partida '+(i+1)+'</td><td>'+escapeHtml(g.fecha?new Date(g.fecha).toLocaleDateString('es-ES'):'—')+'</td><td>'+escapeHtml(g.ganador||'Sin ganador')+'</td><td>'+escapeHtml(participantsText)+'</td><td>'+Number(g.total||0)+'</td>'+nums.map(n=>'<td>'+Number(f[n]||0)+'</td>').join('')+'</tr>';}).join('');const totalRow='<tr class="total-row"><td colspan="4">TOTAL · '+games.length+' partidas</td><td>'+allRolls+'</td>'+nums.map(n=>'<td>'+totals[n]+'</td>').join('')+'</tr>';historicalRows.innerHTML=header+rows+totalRow+'</tbody></table></div>';}
+      function renderHistoricalAnalysis(){if(!historicalGames||!historicalRolls||!historicalMost||!historicalPercentGrid||!historicalRows||!historicalRanking)return;const totals=Object.fromEntries(nums.map(n=>[n,0]));let allRolls=0;games.forEach(g=>{const f=g.frecuencias||{};let gameRolls=Number(g.total)||0;if(!gameRolls)gameRolls=nums.reduce((s,n)=>s+Number(f[n]||0),0);allRolls+=gameRolls;nums.forEach(n=>{totals[n]+=Number(f[n]||0);});});const totalFromFrequencies=nums.reduce((s,n)=>s+totals[n],0);if(totalFromFrequencies>allRolls)allRolls=totalFromFrequencies;historicalGames.textContent=games.length;historicalRolls.textContent=allRolls;const max=Math.max(0,...nums.map(n=>totals[n]));historicalMost.textContent=games.length&&max?nums.filter(n=>totals[n]===max).join(' · '):'—';const ranked=nums.map(n=>({n,count:totals[n],pct:allRolls?(totals[n]/allRolls*100):0})).sort((a,b)=>b.pct-a.pct||b.count-a.count||a.n-b.n);historicalPercentGrid.innerHTML=ranked.map(item=>'<div class="historical-percent-item"><strong class="number">'+item.n+'</strong><span class="pct">'+item.pct.toFixed(1)+'%</span></div>').join('');if(!games.length){historicalRanking.innerHTML='<div class="historical-empty">Todavía no hay partidas guardadas.</div>';historicalRows.innerHTML='<div class="historical-empty">Guardá una partida para comenzar el archivo histórico.</div>';return;}historicalRanking.innerHTML=ranked.map((item,i)=>'<div class="historical-rank-item"><span class="historical-rank-position">'+(i+1)+'</span><strong class="historical-rank-number">'+item.n+'</strong><div class="historical-rank-track"><div class="historical-rank-bar" style="width:'+Math.min(100,item.pct)+'%"></div></div><span class="historical-rank-value">'+item.count+' · '+item.pct.toFixed(2)+'%</span></div>').join('');const header='<div class="historical-scroll"><table class="historical-table"><thead><tr><th>Partida</th><th>Fecha</th><th>Ganador</th><th>Tiradas</th>'+nums.map(n=>'<th>'+n+'</th>').join('')+'</tr></thead><tbody>';const rows=games.map((g,i)=>{const f=g.frecuencias||{};return '<tr><td>Partida '+(i+1)+'</td><td>'+escapeHtml(g.fecha?new Date(g.fecha).toLocaleDateString('es-ES'):'—')+'</td><td>'+escapeHtml(g.ganador||'Sin ganador')+'</td><td>'+Number(g.total||0)+'</td>'+nums.map(n=>'<td>'+Number(f[n]||0)+'</td>').join('')+'</tr>';}).join('');const totalRow='<tr class="total-row"><td colspan="3">TOTAL · '+games.length+' partidas</td><td>'+allRolls+'</td>'+nums.map(n=>'<td>'+totals[n]+'</td>').join('')+'</tr>';historicalRows.innerHTML=header+rows+totalRow+'</tbody></table></div>';}
       function escapeHtml(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
       exportHistoryCsv.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const header=['Partida','Fecha','Ganador','Tiradas',...nums.map(String)];const lines=[header.join(',')];games.forEach((g,i)=>{const f=g.frecuencias||{};lines.push([i+1,g.fecha||'',g.ganador||'',g.total||0,...nums.map(n=>Number(f[n]||0))].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','));});const totals=Object.fromEntries(nums.map(n=>[n,0]));let totalRolls=0;games.forEach(g=>{totalRolls+=Number(g.total)||0;const f=g.frecuencias||{};nums.forEach(n=>totals[n]+=Number(f[n]||0));});lines.push(['TOTAL','','',totalRolls,...nums.map(n=>totals[n])].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','));downloadFile('catan-historico.csv','text/csv;charset=utf-8','\uFEFF'+lines.join('\n'));status.textContent='Histórico CSV exportado.';});
       exportHistory.addEventListener('click',()=>{if(!games.length){status.textContent='No hay partidas guardadas.';return}const data={juego:'Catan',partidas:games};downloadFile('catan-historico.json','application/json;charset=utf-8',JSON.stringify(data,null,2));status.textContent='Histórico JSON exportado.';});
@@ -310,7 +237,7 @@
       undo.addEventListener('click',()=>{if(!history.length)return; const n=history.pop(); counts[n]--; render(); status.textContent='Se deshizo la última tirada ('+n+'). Total: '+history.length+'.';});
       reset.addEventListener('click',()=>{nums.forEach(n=>counts[n]=0);history.length=0;winner='';renderWinner();render();status.textContent='Partida reiniciada.';});
       nums.forEach(n=>counts[n]=0);history.length=0;winner='';
-      renderWinner();renderParticipants();renderLastRoll();render();renderHistory();loadCloud();setInterval(()=>{if(document.visibilityState==='visible')loadCloud(true)},20000);
+      renderWinner();render();renderHistory();loadCloud();setInterval(()=>{if(document.visibilityState==='visible')loadCloud(true)},20000);
     })();
   </script>
 </div>
